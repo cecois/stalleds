@@ -11,7 +11,7 @@
     </div>
     <div style="width:100%;height:20%;">
       <small id="attribution">
-      &copy; code:C.C.Miller, &copy; data:<a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; basemap ({{this.basemap.nom}}): {{this.basemap.source}}
+      &copy; code:C.C.Miller, &copy; basemap data:<a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; basemap ({{this.basemap.nom}}): {{this.basemap.source}}, &copy; site data https://data.cityofnewyork.us/Housing-Development/DOB-Stalled-Construction-Sites/i296-73x5
     </small>
     </div>
 
