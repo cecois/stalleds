@@ -1,4 +1,7 @@
 const NOGO = require('node-geocoder')
+,__ = require('underscore')
+,AXIOS = require('axios')
+,MOMENT = require('moment')
 ;
 
 var options = {
@@ -13,8 +16,10 @@ var options = {
 
 const geocoder = NOGO(options);
 
-const j = {"bin":"3424555","borough_name":"Brooklyn","community_board":"313","complaint_number":"3414876","date_complaint_received":"2012-06-12T00:00:00.000","dobrundate":"2018-12-03T00:00:00.000","house_number":"37          ","street_name":"BRIGHTON 2 PLACE                "}
-const a = j.house_number.trim()+" "+j.street_name.trim()+", "+j.borough_name.trim()+", New York"
+const _GEOCODE = async(U,P)=>{
+
+  const j = {"bin":"3424555","borough_name":"Brooklyn","community_board":"313","complaint_number":"3414876","date_complaint_received":"2012-06-12T00:00:00.000","dobrundate":"2018-12-03T00:00:00.000","house_number":"37          ","street_name":"BRIGHTON 2 PLACE                "}
+  const a = j.house_number.trim()+" "+j.street_name.trim()+", "+j.borough_name.trim()+", New York"
 
 // const a = j.house_number.trim()+" "+j.street_name.trim()+", "+j.borough_name.trim()+", New York"
 
@@ -35,9 +40,45 @@ const a = j.house_number.trim()+" "+j.street_name.trim()+", "+j.borough_name.tri
 console.log("a",a)
 // Or using Promise
 geocoder.geocode(a)
-  .then(function(res) {
-    console.log("res:",res);
-  })
-  .catch(function(err) {
-    console.log("err:",err);
-  });
+.then(function(res) {
+  console.log("res:",res);
+})
+.catch(function(err) {
+  console.log("err:",err);
+});
+
+}
+
+
+const _GET = async(U,P)=>{
+
+  return new Promise((resolve,reject)=>{
+   AXIOS.get(U,P)
+   .then(function (response) {
+     resolve(response);
+   })
+   .catch(function (error) {
+     console.log(error);
+     reject(error);
+   });
+})//promise
+}//_GET
+
+const _GET_NYC = async ()=>{
+  let uri = "https://data.cityofnewyork.us/resource/m2i4-ujnn.json?$where=dobrundate%20between%20%272018-12-03T00:00:00%27%20and%20%272018-12-04T23:59:59%27&$limit=999999"
+  const r = await _GET(uri);
+  return new Promise((resolve,reject)=>{
+
+    resolve(r)
+
+})//promise
+}
+
+const main = async () =>{
+
+  let stalledsRaw = await _GET_NYC()
+  console.log(stalledsRaw);
+
+}
+
+main();
