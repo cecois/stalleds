@@ -19,17 +19,16 @@ const GEOC = NOGO(options);
 
 const _PREP = async(RAWS)=>{
 
-console.log(__.first(RAWS));
   // const j = {"bin":"3424555","borough_name":"Brooklyn","community_board":"313","complaint_number":"3414876","date_complaint_received":"2012-06-12T00:00:00.000","dobrundate":"2018-12-03T00:00:00.000","house_number":"37          ","street_name":"BRIGHTON 2 PLACE                "}
   return new Promise((resolve,reject)=>{
-
-let geocz = __.map(__.first(RAWS[0]),async(j,i)=>{
-// console.log(j);
-  const a = j.house_number.trim()+" "+j.street_name.trim()
+    console.log('mapping...')
+    let geocz = __.map(__.first(RAWS,2),async(j,i)=>{
+      const a = j.house_number.trim()+" "+j.street_name.trim()
   // +", "+j.borough_name.trim()+", New York"
 // console.log("heres where we geocode "+i+":",a)
 let o = j
-// o.address=await _GEOCODE(a,j.borough_name.trim());
+o.address=a
+o.location=await _GEOCODE(a,j.borough_name.trim());
 return o;
 })//map
 // const a = j.house_number.trim()+" "+j.street_name.trim()+", "+j.borough_name.trim()+", New York"
@@ -58,11 +57,11 @@ return new Promise((resolve,reject)=>{
 // console.log("a",a)
 // Or using Promise
 GEOC.geocode(
-  {
-      street: A,
-      city: B,
-      state: 'New York'
-    }
+{
+  street: A,
+  city: B,
+  state: 'New York'
+}
 )
 .then(function(res) {
   console.log("res:",res);
@@ -79,13 +78,14 @@ GEOC.geocode(
 const _GET_FAKENYC = async()=>{
   return new Promise((resolve,reject)=>{
     FS.readFile('./T/staticnyc.json',(e,d)=>{
-      resolve(JSON.parse(d));
+      let j = JSON.parse(d);
+      resolve(j);
     })//fs
   })//promise
 }//fakenyc
 
 const _GET = async(U,P)=>{
-console.log("getting ",U)
+  console.log("getting ",U)
   return new Promise((resolve,reject)=>{
    AXIOS.get(U,P)
    .then(function (response) {
@@ -112,7 +112,7 @@ const main = async () =>{
 
   // let stalledsRaw = await _GET_NYC()
   let stalledsRaw = await _GET_FAKENYC()
-  // console.log(stalledsRaw);
+  // console.log(stalledsRaw.length);
   // if(stalledsRaw.length>0){
     let geocoded = await _PREP(stalledsRaw);
     console.log(geocoded);
