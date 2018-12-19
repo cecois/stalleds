@@ -18,7 +18,6 @@
     "firebase": "^5.0.4",
     "levenshtein-dist": "^0.1.1",
     "moment": "^2.22.2",
-    "node-geocoder": "^3.22.0",
     "v-tooltip": "^2.0.0-rc.33",
     "vue": "^2.5.2",
     "vue-firestore": "^0.2.9",

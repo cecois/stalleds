@@ -2,10 +2,10 @@
 <div>
 
 <div id="notmap" class="columns">
-  <div id="brand" class="column is-one-quarter">
-    ~stalleds~ https://data.cityofnewyork.us/resource/m2i4-ujnn.json?$where=dobrundate%20between%20%272018-12-03T00:00:00%27%20and%20%272018-12-04T23:59:59%27&$limit=999999
+  <div id="brand" class="column is-one-half">
+    stalleds
   </div>
-  <div id="" class="column is-three-quarters has-text-grey-light is-size-7 has-text-right is-lowercase">
+  <div id="" class="column is-one-half has-text-grey-light is-size-7 has-text-right is-lowercase">
     <div style="width:100%;height:80%;">
       <div id="console" v-bind:class="{'is-invisible':(this.temp.msg=='')}">{{this.temp.msg}}</div>
     </div>
@@ -78,6 +78,7 @@ export default {
       bio: null,
       slug: null,
       supply:null,
+      supplied:null,
       map: null,
   tileLayer: null,
   lots: null,
@@ -102,7 +103,7 @@ basemap:function(){
   tileLayer: function() {this.routize();this.lrender()}
     ,lot: function() {this.routize();this.lrender();}
   //,slug: function() {this.routize();}
-  ,supply: function() {this.lrender();}
+  ,supply: function() {this.prerender();}
   // ,basemaps: function() {this.lrender();}
     },
   created() {
@@ -209,6 +210,47 @@ layergrouplayer.eachLayer(function(f){
       //this.$router.push({ params:{lot:this.lot,slug:this.slug,map:this.basemap.key,bbox:this.map.getBounds().toBBoxString() }})
       this.$router.push({ params:{map:this.basemap.key,bbox:this.map.getBounds().toBBoxString(),lot:this.lot }})
     },
+    prerender(){
+
+this.temp.msg="prepping response frm nyc api..."
+axios.post('http://localhost:8080/geocode/batch',{foo:"bar"})
+    .then(response => {
+      // JSON responses are automatically parsed.
+      this.temp.msg=response.length
+      this.supplied = response.data
+    })
+    .catch(e => {
+    this.temp.msg="post to api.milleria failed. refresh?"
+      this.errors.push(e)
+    })
+
+// const GEOC = this.$NOGO({
+//   provider: 'datasciencetoolkit',
+//   // Optional depending on the providers
+//   httpAdapter: 'http',
+//   formatter: null,         // 'gpx', 'string', ...
+//   "user-agent":'Stalled-NYC-Construction-Bot',
+//   format:'json'
+// });
+// this.temp.msg="geocoding and geojsonifying..."
+// let raw = this.supply
+// let geocz = this.$_.map(raw,(j)=>{
+//   return j.house_number.trim()+" "+j.street_name.trim()+", "+j.borough_name.trim()+", New York"
+// })
+// let that = this
+// GEOC.batchGeocode(geocz)
+//   .then(function(res) {
+//     console.log("res",res);
+//     that.supplied=res
+//   })
+//   .catch(function(err) {
+//     console.log(err);
+// that.temp.msg="geocoding failed"
+//   });
+
+this.temp.msg="done"
+
+    },
     lrender(){
 this.lots.clearLayers();
 this.lots.addLayer(L.geoJson(this.supply, {style:this.getHue()}));
@@ -225,7 +267,11 @@ this.substyle();
        }
      }
     ,initMap() {
-      let bbox =(typeof this.$route.params.bbox !== 'undefined')?this.prepBbox(this.$route.params.bbox):[[33.64197541854496,-84.84937816858294],[33.86519744005887,-83.85168224573135]]
+      // 2013-04-26T00:00:00.000
+      var range_low = this.$MOMENT().startOf('day').subtract(1, 'days').format('YYYY-MM-DDTHH:mm:ss.SSS')
+      var range_high = this.$MOMENT().endOf('day').add(7, 'days').format('YYYY-MM-DDTHH:mm:ss.SSS')
+      var range = "between%20%27"+range_low+"%27%20and%20%27"+range_high+"%27"
+      let bbox =(typeof this.$route.params.bbox !== 'undefined')?this.prepBbox(this.$route.params.bbox):[[38.63587302675188,-81.95800781250001],[42.40897065395533,-64.63256835937501]]
 // a little of ye ol that=this
       var that=this
       this.map = L.map('map').fitBounds(bbox)
@@ -245,18 +291,17 @@ this.lots = L.layerGroup(null).addTo(this.map)
 
 this.tileLayer.addTo(this.map);
 
-this.temp.msg="fetching lots..."
-axios.get('https://cecmcgee.carto.com/api/v2/sql?format=GeoJSON&q=SELECT * FROM atl_tax_parcel_parking')
+this.temp.msg="fetching sites bt "+range+"..."
+axios.get('https://data.cityofnewyork.us/resource/m2i4-ujnn.json?$where=dobrundate%20'+range+'&$limit=999999')
     .then(response => {
       // JSON responses are automatically parsed.
-      this.temp.msg=""
+      this.temp.msg=response.length
       this.supply = response.data
     })
     .catch(e => {
-    this.temp.msg="fetch from carto.com failed :-( refresh?"
+    this.temp.msg="fetch from nyc api failed :-( refresh?"
       this.errors.push(e)
     })
-// }
 
 
     },

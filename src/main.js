@@ -29,11 +29,10 @@ import underscore from 'vue-underscore'
 // import levenshtein from 'levenshtein-dist';
 // import moment from 'moment';
 // Object.defineProperty(Vue.prototype, '$levenshtein', { value: levenshtein });
-
 Vue.use(underscore)
 Vue.use(VTooltip)
 
-Object.defineProperty(Vue.prototype, '$moment', { value: moment })
+// Object.defineProperty(Vue.prototype, '$moment', { value: moment })
 
 // import VueFormWizard from 'vue-form-wizard'
 // https://www.npmjs.com/package/vue-form-wizard

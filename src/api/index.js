@@ -9,7 +9,7 @@ var options = {
   provider: 'datasciencetoolkit',
 
   // Optional depending on the providers
-  httpAdapter: 'https',
+  httpAdapter: 'http',
   formatter: null,         // 'gpx', 'string', ...
   "user-agent":'Stalled-NYC-Construction-Bot',
   format:'json'
@@ -23,45 +23,32 @@ const _PREP = async(RAWS)=>{
   return new Promise((resolve,reject)=>{
     console.log('mapping...')
     let geocz = __.map(__.first(RAWS,2),async(j,i)=>{
-      const a = j.house_number.trim()+" "+j.street_name.trim()
-  // +", "+j.borough_name.trim()+", New York"
+      const a = j.house_number.trim()+" "+j.street_name.trim()+", "+j.borough_name.trim()+", New York"
 // console.log("heres where we geocode "+i+":",a)
-let o = j
-o.address=a
-o.location=await _GEOCODE(a,j.borough_name.trim());
-return o;
+// let o = j
+// o.address=a
+// o.location=await _GEOCODE(a,j.borough_name.trim());
+return a;
 })//map
 // const a = j.house_number.trim()+" "+j.street_name.trim()+", "+j.borough_name.trim()+", New York"
 resolve(geocz)
 })//promise
 }
 
-const _GEOCODE = async(A,B)=>{
+const _GEOCODETEST = async(A,B)=>{
 
-// GEOC
-//   .geocode({
-//     street: A,
-//     city: B,
-//     state: 'New York'
-//   })
-//   .then(function(results) {
-//     console.log(results.latitude);
-//     console.log(results.longitude);
-//     resolve()
-//   })
-//   .catch(function(e) {
-//     console.log("ERROR",e)
-//   });
 return new Promise((resolve,reject)=>{
 
-// console.log("a",a)
+let o = {
+  street: '33 Lancaster Terrace',
+  city: 'Brookline',
+  state: 'MA'
+}
+
+console.log("o",o)
 // Or using Promise
 GEOC.geocode(
-{
-  street: A,
-  city: B,
-  state: 'New York'
-}
+o
 )
 .then(function(res) {
   console.log("res:",res);
@@ -71,6 +58,31 @@ GEOC.geocode(
   console.log("err:",err);
   reject(err);
 });
+
+})//promise
+}//geocode
+
+const _GEOCODE = async(ALL)=>{
+
+console.log("geocding "+ALL.length+" items...")
+return new Promise((resolve,reject)=>{
+
+
+GEOC.batchGeocode(ALL)
+  .then(function(res) {
+    // console.log(res);
+    resolve(res);
+  })
+  .catch(function(err) {
+    // console.log(err);
+    reject(err);
+  });
+
+// GEOC.batchGeocode(ALL, function (err, res) {
+//   if(err){reject(err);}
+//   // Return an array of type {error: false, value: []}
+//   resolve(res)
+// });
 
 })//promise
 }//geocode
@@ -114,8 +126,10 @@ const main = async () =>{
   let stalledsRaw = await _GET_FAKENYC()
   // console.log(stalledsRaw.length);
   // if(stalledsRaw.length>0){
-    let geocoded = await _PREP(stalledsRaw);
-    console.log(geocoded);
+    let prepped = await _PREP(stalledsRaw);
+let geocoded = await _GEOCODE(prepped);
+    // let geocoded = await _GEOCODETEST();
+    console.log(JSON.stringify(geocoded));
   // }
 
 }
